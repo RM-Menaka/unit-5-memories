@@ -9,7 +9,7 @@ import me_mani from "../assets/memorytrain/me_mani.jpg";
 import me_litty from "../assets/memorytrain/me_litty.jpg";
 import farewell from "../assets/memorytrain/farewell.jpg";
 import clean_drive from "../assets/memorytrain/clean_drive.jpg";
-import cap_sri from "../assets/memorytrain/sherni_juiceup.jpg";
+import cap_sri from "../assets/memorytrain/Sherni_juiceup.jpg";
 import camp_nyt from "../assets/memorytrain/camp_nyt.jpg";
 import camp_mani from "../assets/memorytrain/camp_mani.jpg";
 import farewell_us from "../assets/memorytrain/mani_me.jpg";
