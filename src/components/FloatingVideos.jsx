@@ -48,7 +48,7 @@ const photos = [
   },
 ];
 
-export default function FloatingPhotos() {
+export default function FloatingVideos() {
   return (
     <section className="relative min-h-screen overflow-hidden bg-[#16120f] py-40 px-6">
 
