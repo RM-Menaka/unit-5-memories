@@ -22,6 +22,42 @@ export default function App() {
   const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
   const [isHoveringVideo, setIsHoveringVideo] = useState(false);
 
+  // AUTOMATIC UNLOCKER: Listens for the very first user interaction anywhere on the document
+  useEffect(() => {
+    const unlockAudio = () => {
+      const mainAudio = mainAudioRef.current;
+      if (mainAudio && !isAudioUnlocked) {
+        mainAudio.volume = 1.0;
+        // Briefly trigger play to secure browser runtime clearance
+        mainAudio.play()
+          .then(() => {
+            setIsAudioUnlocked(true);
+            // If they are still at the top/Journey section, pause it until they reach page 3
+            if (journeySectionRef.current && heroVideoRef.current && !heroVideoRef.current.muted) {
+              mainAudio.pause();
+              mainAudio.currentTime = 0;
+            }
+          })
+          .catch((err) => console.log("Silent auto-unlock deferred:", err));
+      }
+      
+      // Clean up listeners immediately after the first touch/click/scroll interaction
+      window.removeEventListener("click", unlockAudio);
+      window.removeEventListener("touchstart", unlockAudio);
+      window.removeEventListener("scroll", unlockAudio);
+    };
+
+    window.addEventListener("click", unlockAudio);
+    window.addEventListener("touchstart", unlockAudio);
+    window.addEventListener("scroll", unlockAudio);
+
+    return () => {
+      window.removeEventListener("click", unlockAudio);
+      window.removeEventListener("touchstart", unlockAudio);
+      window.removeEventListener("scroll", unlockAudio);
+    };
+  }, [isAudioUnlocked]);
+
   useEffect(() => {
     const heroVideo = heroVideoRef.current;
     const mainAudio = mainAudioRef.current;
@@ -35,6 +71,7 @@ export default function App() {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
+          // Inside Journey Section -> original video audio plays, background song remains silent
           heroVideo.muted = false;
           heroVideo.volume = 1.0;
 
@@ -43,8 +80,10 @@ export default function App() {
             mainAudio.currentTime = 0;
           }
         } else {
+          // Outside Journey Section -> mute hero clip
           heroVideo.muted = true;
 
+          // Continuous playback kicks off and holds for the remainder of the web app length
           if (mainAudio.paused && isAudioUnlocked && !isHoveringVideo) {
             mainAudio.play().catch((err) => console.log("Play held back:", err));
           }
@@ -82,7 +121,6 @@ export default function App() {
 
       {/* JOURNEY SECTION */}
       <section ref={journeySectionRef} className="relative min-h-screen overflow-hidden flex items-center justify-center px-6">
-        {/* PRODUCTION MEDIA PATH FIX: Declared as an absolute src property element */}
         <video 
           ref={heroVideoRef} 
           autoPlay 
