@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 
 import camp from "../assets/videos/camp.mp4";
@@ -122,6 +122,20 @@ export default function VideoReel({ mainAudioRef, isAudioUnlocked, setIsAudioUnl
   const sectionRef = useRef(null);
   const [isSectionActive, setIsSectionActive] = useState(false);
 
+  const unlockAudioEnv = (e) => {
+    e.stopPropagation();
+    
+    if (mainAudioRef.current) {
+      mainAudioRef.current.volume = 1.0;
+      mainAudioRef.current
+        .play()
+        .then(() => {
+          setIsAudioUnlocked(true);
+        })
+        .catch((err) => console.log("Audio play failed:", err));
+    }
+  };
+
   useEffect(() => {
     const section = sectionRef.current;
     const mainAudio = mainAudioRef.current;
@@ -141,7 +155,34 @@ export default function VideoReel({ mainAudioRef, isAudioUnlocked, setIsAudioUnl
 
   return (
     <section ref={sectionRef} className="relative min-h-screen overflow-hidden bg-[#120f0d] py-40 px-6">
-      
+      <AnimatePresence>
+        {!isAudioUnlocked && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] flex flex-col items-center justify-center text-center px-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 10 }}
+              animate={{ scale: 1, y: 0 }}
+              className="max-w-md p-8 rounded-3xl bg-[#1e1712] border border-[#6d5742] shadow-2xl relative z-[110]"
+            >
+              <h3 className="text-white font-serif text-3xl mb-3">Welcome to Unit 5 Channels</h3>
+              <p className="text-orange-200/70 text-sm mb-6 leading-relaxed">
+                To experience the full memories wall with background music and live audio clips, click below to unlock.
+              </p>
+              <button
+                onClick={unlockAudioEnv}
+                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 text-white text-sm font-semibold tracking-wider hover:opacity-90 shadow-lg shadow-orange-950/40 transition-opacity relative z-[120] cursor-pointer"
+              >
+                ⚡ ENTER SYSTEM WITH SOUND
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-orange-500/10 blur-3xl rounded-full"></div>
       <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-yellow-500/10 blur-3xl rounded-full"></div>
       <div className="absolute inset-0 opacity-[0.04] bg-[url('https://www.transparenttextures.com/patterns/asfalt-light.png')]"></div>
