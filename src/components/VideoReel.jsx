@@ -122,17 +122,22 @@ export default function VideoReel({ mainAudioRef, isAudioUnlocked, setIsAudioUnl
   const sectionRef = useRef(null);
   const [isSectionActive, setIsSectionActive] = useState(false);
 
-  const unlockAudioEnv = (e) => {
+  // FIX 1: safer audio unlock for deployed/production site
+  const unlockAudioEnv = async (e) => {
     e.stopPropagation();
-    
-    if (mainAudioRef.current) {
-      mainAudioRef.current.volume = 1.0;
-      mainAudioRef.current
-        .play()
-        .then(() => {
-          setIsAudioUnlocked(true);
-        })
-        .catch((err) => console.log("Audio play failed:", err));
+
+    try {
+      if (!mainAudioRef.current) return;
+
+      const audio = mainAudioRef.current;
+      audio.volume = 1.0;
+      audio.muted = false;
+      audio.currentTime = 0;
+
+      await audio.play();
+      setIsAudioUnlocked(true);
+    } catch (err) {
+      console.log("Audio play failed:", err);
     }
   };
 
@@ -156,7 +161,8 @@ export default function VideoReel({ mainAudioRef, isAudioUnlocked, setIsAudioUnl
   return (
     <section ref={sectionRef} className="relative min-h-screen overflow-hidden bg-[#120f0d] py-40 px-6">
       <AnimatePresence>
-        {!isAudioUnlocked && (
+        {/* FIX 2: popup only when VideoReel section is visible */}
+        {!isAudioUnlocked && isSectionActive && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
