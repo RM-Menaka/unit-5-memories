@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 import gs from "../assets/floatingvideos/beach1.jpg";
 import js from "../assets/floatingvideos/greycamp.jpg";
-import meet1 from "../assets/floatingvideos/Juiceup_med.jpg";
+import meet1 from "../assets/floatingvideos/juiceup_med.jpg";
 import meet2 from "../assets/floatingvideos/Pava_poster.jpg";
 import mani_vj from "../assets/floatingvideos/farewell_us.jpg";
 
