@@ -10,7 +10,7 @@ import grey_camp from "../assets/videos/grey_camp.mp4";
 const tvs = [
   {
     title: "",
-    quote: "Where it all started. All in blue.",
+    quote: "Where it all started. All in blue. ",
     video: camp,
     top: "top-[20px]",
     left: "left-[8%]",
@@ -50,14 +50,7 @@ const tvs = [
   },
 ];
 
-function TVCard({
-  tv,
-  index,
-  mainAudioRef,
-  isAudioUnlocked,
-  isSectionActive,
-  setIsHoveringVideo,
-}) {
+function TVCard({ tv, index, mainAudioRef, isAudioUnlocked, isSectionActive, setIsHoveringVideo }) {
   const videoRef = useRef(null);
 
   const handleMouseEnter = () => {
@@ -83,8 +76,7 @@ function TVCard({
       videoRef.current.muted = true;
     }
 
-    // Resume only if audio is unlocked AND this section is still active
-    if (mainAudioRef.current && isAudioUnlocked && isSectionActive) {
+    if (mainAudioRef.current && isAudioUnlocked) {
       mainAudioRef.current.play().catch((err) => console.log("Resume blocked:", err));
     }
   };
@@ -113,13 +105,11 @@ function TVCard({
             ● HOVER TO PLAY
           </div>
         </div>
-
         <div className="text-center mt-5">
           <h3 className="text-white text-2xl font-serif">{tv.title}</h3>
           <p className="text-gray-300 italic mt-3">"{tv.quote}"</p>
         </div>
       </div>
-
       <div className="flex justify-between px-12">
         <div className="w-2 h-10 bg-[#6d5742]"></div>
         <div className="w-2 h-10 bg-[#6d5742]"></div>
@@ -128,19 +118,14 @@ function TVCard({
   );
 }
 
-export default function VideoReel({
-  mainAudioRef,
-  isAudioUnlocked,
-  setIsAudioUnlocked,
-  isHoveringVideo,
-  setIsHoveringVideo,
-}) {
+export default function VideoReel({ mainAudioRef, isAudioUnlocked, setIsAudioUnlocked, isHoveringVideo, setIsHoveringVideo }) {
   const sectionRef = useRef(null);
   const [isSectionActive, setIsSectionActive] = useState(false);
 
   const unlockAudioEnv = (e) => {
     e.stopPropagation();
-
+    e.preventDefault(); // Prevents layout engine event traps
+    
     if (mainAudioRef.current) {
       mainAudioRef.current.volume = 1.0;
       mainAudioRef.current
@@ -154,50 +139,45 @@ export default function VideoReel({
 
   useEffect(() => {
     const section = sectionRef.current;
-    if (!section) return;
+    const mainAudio = mainAudioRef.current;
+
+    if (!section || !mainAudio) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsSectionActive(entry.isIntersecting);
       },
-      { threshold: 0.15 }
+      { threshold: 0.1 }
     );
 
     observer.observe(section);
-
     return () => observer.disconnect();
-  }, []);
+  }, [mainAudioRef]);
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative min-h-screen overflow-hidden bg-[#120f0d] py-40 px-6"
-    >
-      {/* IMPORTANT FIX:
-          popup shows only when VideoReel section is visible */}
+    <section ref={sectionRef} className="relative min-h-screen overflow-hidden bg-[#120f0d] py-40 px-6">
+      
+      {/* INTERACTION OVERRIDE FIX: pointer-events-auto added onto modal and overlay layers */}
       <AnimatePresence>
-        {!isAudioUnlocked && isSectionActive && (
+        {!isAudioUnlocked && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] flex flex-col items-center justify-center text-center px-4"
+            className="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] flex flex-col items-center justify-center text-center px-4 pointer-events-auto"
           >
             <motion.div
               initial={{ scale: 0.95, y: 10 }}
               animate={{ scale: 1, y: 0 }}
-              className="max-w-md p-8 rounded-3xl bg-[#1e1712] border border-[#6d5742] shadow-2xl relative z-[110]"
+              className="max-w-md p-8 rounded-3xl bg-[#1e1712] border border-[#6d5742] shadow-2xl relative z-[110] pointer-events-auto"
             >
-              <h3 className="text-white font-serif text-3xl mb-3">
-                Welcome to Unit 5 Channels
-              </h3>
+              <h3 className="text-white font-serif text-3xl mb-3">Welcome to Unit 5 Channels</h3>
               <p className="text-orange-200/70 text-sm mb-6 leading-relaxed">
-                To experience the full memories wall with background music and live
-                audio clips, click below to unlock.
+                To experience the full memories wall with background music and live audio clips, click below to unlock.
               </p>
               <button
                 onClick={unlockAudioEnv}
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 text-white text-sm font-semibold tracking-wider hover:opacity-90 shadow-lg shadow-orange-950/40 transition-opacity relative z-[120] cursor-pointer"
+                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 text-white text-sm font-semibold tracking-wider hover:opacity-90 shadow-lg shadow-orange-950/40 transition-opacity relative z-[120] cursor-pointer pointer-events-auto"
               >
                 ⚡ ENTER SYSTEM WITH SOUND
               </button>
@@ -211,9 +191,7 @@ export default function VideoReel({
       <div className="absolute inset-0 opacity-[0.04] bg-[url('https://www.transparenttextures.com/patterns/asfalt-light.png')]"></div>
 
       <div className="text-center mb-24 relative z-10">
-        <p className="uppercase tracking-[8px] text-orange-200 text-sm mb-5">
-          CHANNELS OF OUR MEMORIES
-        </p>
+        <p className="uppercase tracking-[8px] text-orange-200 text-sm mb-5">CHANNELS OF OUR MEMORIES</p>
         <h2 className="text-5xl md:text-7xl font-serif text-white leading-tight">
           Every Screen <br /> Tells A Story
         </h2>

@@ -35,7 +35,6 @@ export default function App() {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          // Inside Journey section -> run video audio, stop track
           heroVideo.muted = false;
           heroVideo.volume = 1.0;
 
@@ -44,10 +43,8 @@ export default function App() {
             mainAudio.currentTime = 0;
           }
         } else {
-          // Outside Journey section -> mute it
           heroVideo.muted = true;
 
-          // CONTINUOUS SYSTEM TRACK PLAYBACK FOR THE REST OF THE APP
           if (mainAudio.paused && isAudioUnlocked && !isHoveringVideo) {
             mainAudio.play().catch((err) => console.log("Play held back:", err));
           }
@@ -60,7 +57,6 @@ export default function App() {
     return () => observer.disconnect();
   }, [isAudioUnlocked, isHoveringVideo]);
 
-  // Global Sync Listener: Handles instant hover muting/resuming globally
   useEffect(() => {
     const mainAudio = mainAudioRef.current;
     if (!mainAudio || !isAudioUnlocked) return;
@@ -86,10 +82,21 @@ export default function App() {
 
       {/* JOURNEY SECTION */}
       <section ref={journeySectionRef} className="relative min-h-screen overflow-hidden flex items-center justify-center px-6">
-        <video ref={heroVideoRef} autoPlay loop playsInline muted className="absolute inset-0 w-full h-full object-cover blur-[3px]">
-          <source src={journeyVideo} type="video/mp4" />
-        </video>
+        {/* PRODUCTION MEDIA PATH FIX: Declared as an absolute src property element */}
+        <video 
+          ref={heroVideoRef} 
+          autoPlay 
+          loop 
+          playsInline 
+          muted 
+          src={journeyVideo}
+          className="absolute inset-0 w-full h-full object-cover blur-[3px] scale-100" 
+        />
         <div className="absolute inset-0 bg-black/55"></div>
+        <div className="absolute top-20 left-20 w-72 h-72 bg-green-700/20 blur-3xl rounded-full"></div>
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-green-500/10 blur-3xl rounded-full"></div>
+        <div className="absolute top-1/2 left-1/2 w-[500px] h-[500px] bg-green-900/10 blur-3xl rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+
         <motion.div initial={{ opacity: 0, y: 100 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 1.2 }} viewport={{ once: true }} className="relative z-10 max-w-4xl text-center">
           <p className="text-green-400 tracking-[6px] uppercase text-sm mb-6">Our Journey</p>
           <h2 className="text-4xl md:text-6xl font-serif leading-tight text-white">We entered as strangers.<br />We stayed as memories.</h2>
